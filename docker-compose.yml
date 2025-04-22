@@ -1,0 +1,61 @@
+version: '3.8'
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    container_name: zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    container_name: kafka
+    ports:
+      - "29092:29092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:29092
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:29092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    depends_on:
+      - zookeeper
+
+  mongo:
+    image: mongo:latest
+    container_name: mongo-container
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+  mysql:
+    image: mysql:latest
+    container_name: mysql-container
+    environment:
+      MYSQL_ROOT_PASSWORD: techbankRootPsw
+      MYSQL_DATABASE: bankAccount
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+  postgres:
+    image: postgres:13
+    container_name: postgres-db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: techbankRootPsw
+      POSTGRES_DB: bankAccount
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+volumes:
+  mongo-data:
+  mysql-data:
+  postgres-data:
